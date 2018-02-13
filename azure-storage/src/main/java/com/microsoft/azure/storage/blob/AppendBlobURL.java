@@ -25,10 +25,11 @@ import io.reactivex.Single;
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.ByteBuffer;
 
 
 /**
- * Represents a URL to a page blob.
+ * Represents a URL to a append blob.
  */
 public final class AppendBlobURL extends BlobURL {
 
@@ -66,12 +67,12 @@ public final class AppendBlobURL extends BlobURL {
      * Creates a new {@link AppendBlobURL} with the given snapshot.
      *
      * @param snapshot
-     *      A {@code java.util.Date} to set.
+     *      A {@code String} to set.
      * @return
      *      A {@link BlobURL} object with the given pipeline.
      */
     public AppendBlobURL withSnapshot(String snapshot) throws MalformedURLException, UnsupportedEncodingException {
-        BlobURLParts blobURLParts = URLParser.ParseURL(new URL(this.storageClient.url()));
+        BlobURLParts blobURLParts = URLParser.parse(new URL(this.storageClient.url()));
         blobURLParts.setSnapshot(snapshot);
         return new AppendBlobURL(blobURLParts.toURL(), super.storageClient.httpPipeline());
     }
@@ -90,21 +91,21 @@ public final class AppendBlobURL extends BlobURL {
      * @return
      *      The {@link Single&lt;RestResponse&lt;BlobPutHeaders, Void&gt;&gt;} object if successful.
      */
-    public Single<RestResponse<BlobPutHeaders, Void>> createBlobAsync(
+    public Single<RestResponse<BlobPutHeaders, Void>> create(
             Metadata metadata, BlobHttpHeaders headers, BlobAccessConditions accessConditions) {
         if(metadata == null) {
-            metadata = Metadata.getDefault();
+            metadata = Metadata.NONE;
         }
         if(headers == null) {
-            headers = BlobHttpHeaders.getDefault();
+            headers = BlobHttpHeaders.NONE;
         }
         if(accessConditions == null) {
-            accessConditions = BlobAccessConditions.getDefault();
+            accessConditions = BlobAccessConditions.NONE;
         }
-        return this.storageClient.blobs().putWithRestResponseAsync(0, BlobType.APPEND_BLOB, null,
-                null, headers.getContentType(), headers.getContentEncoding(),
+        return this.storageClient.blobs().putWithRestResponseAsync(0, BlobType.APPEND_BLOB,
+                null,null, headers.getContentType(), headers.getContentEncoding(),
                 headers.getContentLanguage(), headers.getContentMD5(), headers.getCacheControl(), metadata.toString(),
-                accessConditions.getLeaseAccessConditions().toString(),
+                accessConditions.getLeaseAccessConditions().getLeaseId(),
                 headers.getContentDisposition(),
                 accessConditions.getHttpAccessConditions().getIfModifiedSince(),
                 accessConditions.getHttpAccessConditions().getIfUnmodifiedSince(),
@@ -125,14 +126,14 @@ public final class AppendBlobURL extends BlobURL {
      * @return
      *      The {@link Single&lt;RestResponse&lt;AppendBlobAppendBlockHeaders, Void&gt;&gt;} object if successful.
      */
-    public Single<RestResponse<AppendBlobAppendBlockHeaders, Void>> appendBlockAsync(
-            Flowable<byte[]> data, long length, BlobAccessConditions accessConditions) {
+    public Single<RestResponse<AppendBlobAppendBlockHeaders, Void>> appendBlock(
+            Flowable<ByteBuffer> data, long length, BlobAccessConditions accessConditions) {
         if(accessConditions == null) {
-            accessConditions = BlobAccessConditions.getDefault();
+            accessConditions = BlobAccessConditions.NONE;
         }
 
         return this.storageClient.appendBlobs().appendBlockWithRestResponseAsync(data, length, null,
-                accessConditions.getLeaseAccessConditions().toString(),
+                accessConditions.getLeaseAccessConditions().getLeaseId(),
                 accessConditions.getAppendBlobAccessConditions().getIfMaxSizeLessThanOrEqual(),
                 accessConditions.getAppendBlobAccessConditions().getIfAppendPositionEquals(),
                 accessConditions.getHttpAccessConditions().getIfModifiedSince(),

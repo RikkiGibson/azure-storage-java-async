@@ -23,6 +23,7 @@ import io.reactivex.Single;
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.ByteBuffer;
 import java.util.List;
 
 /**
@@ -68,7 +69,7 @@ public final class BlockBlobURL extends BlobURL {
      *      A {@link BlockBlobURL} object with the given pipeline.
      */
     public BlockBlobURL withSnapshot(String snapshot) throws MalformedURLException, UnsupportedEncodingException {
-        BlobURLParts blobURLParts = URLParser.ParseURL(new URL(this.storageClient.url()));
+        BlobURLParts blobURLParts = URLParser.parse(new URL(this.storageClient.url()));
         blobURLParts.setSnapshot(snapshot);
         return new BlockBlobURL(blobURLParts.toURL(), super.storageClient.httpPipeline());
     }
@@ -92,23 +93,23 @@ public final class BlockBlobURL extends BlobURL {
      * @return
      *      The {@link Single&lt;RestResponse&lt;BlobPutHeaders, Void&gt;&gt;} object if successful.
      */
-    public Single<RestResponse<BlobPutHeaders, Void>> putBlobAsync(
-            Flowable<byte[]> data, long contentLength, BlobHttpHeaders headers, Metadata metadata,
+    public Single<RestResponse<BlobPutHeaders, Void>> putBlob(
+            Flowable<ByteBuffer> data, long contentLength, BlobHttpHeaders headers, Metadata metadata,
             BlobAccessConditions accessConditions) {
         if(accessConditions == null) {
-            accessConditions = BlobAccessConditions.getDefault();
+            accessConditions = BlobAccessConditions.NONE;
         }
         if(headers == null) {
-            headers = BlobHttpHeaders.getDefault();
+            headers = BlobHttpHeaders.NONE;
         }
         // TODO: Metadata protocol layer broken.
         if(metadata == null) {
-            metadata = Metadata.getDefault();
+            metadata = Metadata.NONE;
         }
         return this.storageClient.blobs().putWithRestResponseAsync(contentLength, BlobType.BLOCK_BLOB, data,
                 null, headers.getContentType(), headers.getContentEncoding(),
                 headers.getContentLanguage(), headers.getContentMD5(), headers.getCacheControl(), metadata.toString(),
-                accessConditions.getLeaseAccessConditions().toString(),
+                accessConditions.getLeaseAccessConditions().getLeaseId(),
                 headers.getContentDisposition(),
                 accessConditions.getHttpAccessConditions().getIfModifiedSince(),
                 accessConditions.getHttpAccessConditions().getIfUnmodifiedSince(),
@@ -130,14 +131,14 @@ public final class BlockBlobURL extends BlobURL {
      * @return
      *      The {@link Single&lt;RestResponse&lt;BlockBlobPutBlockHeaders, Void&gt;&gt;} object if successful.
      */
-    public Single<RestResponse<BlockBlobPutBlockHeaders, Void>> putBlockAsync(
-            String base64BlockID, Flowable<byte[]> data, long contentLength,
+    public Single<RestResponse<BlockBlobPutBlockHeaders, Void>> putBlock(
+            String base64BlockID, Flowable<ByteBuffer> data, long contentLength,
             LeaseAccessConditions leaseAccessConditions) {
         if(leaseAccessConditions == null) {
-            leaseAccessConditions = LeaseAccessConditions.getDefault();
+            leaseAccessConditions = LeaseAccessConditions.NONE;
         }
         return this.storageClient.blockBlobs().putBlockWithRestResponseAsync(base64BlockID, contentLength, data,
-                null, leaseAccessConditions.toString(), null);
+                null, leaseAccessConditions.getLeaseId(), null);
     }
 
     /**
@@ -150,13 +151,13 @@ public final class BlockBlobURL extends BlobURL {
      * @return
      *      The {@link Single&lt;RestResponse&lt;BlockBlobGetBlockListHeaders, BlockList&gt;&gt;} object if successful.
      */
-    public Single<RestResponse<BlockBlobGetBlockListHeaders, BlockList>> getBlockListAsync(
+    public Single<RestResponse<BlockBlobGetBlockListHeaders, BlockList>> getBlockList(
             BlockListType listType, LeaseAccessConditions leaseAccessConditions) {
         if(leaseAccessConditions == null) {
-            leaseAccessConditions = LeaseAccessConditions.getDefault();
+            leaseAccessConditions = LeaseAccessConditions.NONE;
         }
         return this.storageClient.blockBlobs().getBlockListWithRestResponseAsync(listType,
-                null, null, leaseAccessConditions.toString(), null);
+                null, null, leaseAccessConditions.getLeaseId(), null);
     }
 
     /**
@@ -180,23 +181,23 @@ public final class BlockBlobURL extends BlobURL {
      *      The {@link Single&lt;RestResponse&lt;BlockBlobPutBlockListHeaders, Void&gt;&gt;} object if successful.
      */
     // TODO: Add Content-Length to swagger once the modeler knows to hide (or whatever solution).
-    public Single<RestResponse<BlockBlobPutBlockListHeaders, Void>> putBlockListAsync(
+    public Single<RestResponse<BlockBlobPutBlockListHeaders, Void>> putBlockList(
             List<String> base64BlockIDs, Metadata metadata, BlobHttpHeaders httpHeaders,
             BlobAccessConditions accessConditions) {
         if(metadata == null) {
-            metadata = Metadata.getDefault();
+            metadata = Metadata.NONE;
         }
         if(httpHeaders == null) {
-            httpHeaders = BlobHttpHeaders.getDefault();
+            httpHeaders = BlobHttpHeaders.NONE;
         }
         if(accessConditions == null) {
-            accessConditions = BlobAccessConditions.getDefault();
+            accessConditions = BlobAccessConditions.NONE;
         }
         return this.storageClient.blockBlobs().putBlockListWithRestResponseAsync(
                 new BlockLookupList().withLatest(base64BlockIDs), null,
                 httpHeaders.getCacheControl(), httpHeaders.getContentType(),httpHeaders.getContentEncoding(),
                 httpHeaders.getContentLanguage(), httpHeaders.getContentMD5(), metadata.toString(),
-                accessConditions.getLeaseAccessConditions().toString(), httpHeaders.getContentDisposition(),
+                accessConditions.getLeaseAccessConditions().getLeaseId(), httpHeaders.getContentDisposition(),
                 accessConditions.getHttpAccessConditions().getIfModifiedSince(),
                 accessConditions.getHttpAccessConditions().getIfUnmodifiedSince(),
                 accessConditions.getHttpAccessConditions().getIfMatch().toString(),

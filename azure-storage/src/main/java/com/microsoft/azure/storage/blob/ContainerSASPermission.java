@@ -19,86 +19,70 @@ import java.util.EnumSet;
 /**
  * Specifies the set of possible permissions for a container shared access policy.
  */
-public enum ContainerSASPermission {
+public final class ContainerSASPermission {
     /**
      * Specifies Read access granted.
      */
-    READ('r'),
+    public boolean read;
 
     /**
      * Specifies Add access granted.
      */
-    ADD('a'),
+    public boolean add;
 
     /**
      * Specifies Create access granted.
      */
-    CREATE('c'),
+    public boolean create;
 
     /**
      * Specifies Write access granted.
      */
-    WRITE('w'),
+    public boolean write;
 
     /**
      * Specifies Delete access granted.
      */
-    DELETE('d'),
+    public boolean delete;
 
     /**
      * Specifies List access granted.
      */
-    LIST('l');
+    public boolean list;
 
-    final private char value;
-
-    /**
-     * Create a {@code ContainerSASPermission}.
-     *
-     * @param c
-     *      The {@code char} which represents this permission.
-     */
-    private ContainerSASPermission(char c) {
-        this.value = c;
-    }
 
     /**
      * Converts the given permissions to a {@code String}.
      *
-     * @param permissions
-     *      The permissions to convert to a {@code String}.
      * @return
      *      A {@code String} which represents the {@code ContainerSASPermission}.
      */
-    static String permissionsToString(EnumSet<ContainerSASPermission> permissions) {
-        if (permissions == null) {
-            return Constants.EMPTY_STRING;
-        }
-
+    @Override
+    public String toString() {
         // The service supports a fixed order => racwdl
         final StringBuilder builder = new StringBuilder();
 
-        if (permissions.contains(ContainerSASPermission.READ)) {
+        if (this.read) {
             builder.append("r");
         }
 
-        if (permissions.contains(ContainerSASPermission.ADD)) {
+        if (this.add) {
             builder.append("a");
         }
 
-        if (permissions.contains(ContainerSASPermission.CREATE)) {
+        if (this.create) {
             builder.append("c");
         }
 
-        if (permissions.contains(ContainerSASPermission.WRITE)) {
+        if (this.write) {
             builder.append("w");
         }
 
-        if (permissions.contains(ContainerSASPermission.DELETE)) {
+        if (this.delete) {
             builder.append("d");
         }
 
-        if (permissions.contains(ContainerSASPermission.LIST)) {
+        if (this.list) {
             builder.append("l");
         }
 
@@ -106,28 +90,40 @@ public enum ContainerSASPermission {
     }
 
     /**
-     * Creates an {@link EnumSet<ContainerSASPermission>} from the specified permissions string.
+     * Creates an {@code ContainerSASPermission} from the specified permissions string.
      *
      * @param permString
      *      A {@code String} which represents the {@code ContainerSASPermission}.
      * @return
-     *      A {@link EnumSet<ContainerSASPermission>} generated from the given {@code String}.
+     *      A {@code ContainerSASPermission} generated from the given {@code String}.
      */
-    static EnumSet<ContainerSASPermission> permissionsFromString(String permString) {
-        EnumSet<ContainerSASPermission> permissions = EnumSet.noneOf(ContainerSASPermission.class);
+    public static ContainerSASPermission parse(String permString) {
+        ContainerSASPermission permissions = new ContainerSASPermission();
 
-        for (final char c : permString.toLowerCase().toCharArray()) {
-            boolean invalidCharacter = true;
-            for (ContainerSASPermission perm : ContainerSASPermission.values()) {
-                if (c == perm.value) {
-                    permissions.add(perm);
-                    invalidCharacter = false;
+        for (int i=0; i<permString.length(); i++) {
+            char c = permString.charAt(i);
+            switch (c) {
+                case 'r':
+                    permissions.read = true;
                     break;
-                }
-            }
-            if (invalidCharacter) {
-                throw new IllegalArgumentException(
-                        String.format(SR.ENUM_COULD_NOT_BE_PARSED, "Permissions", permString));
+                case 'a':
+                    permissions.add = true;
+                    break;
+                case 'c':
+                    permissions.create = true;
+                    break;
+                case 'w':
+                    permissions.write = true;
+                    break;
+                case 'd':
+                    permissions.delete = true;
+                    break;
+                case 'l':
+                    permissions.list = true;
+                    break;
+                default:
+                    throw new IllegalArgumentException(
+                        String.format(SR.ENUM_COULD_NOT_BE_PARSED_INVALID_VALUE, "Permissions", permString, c));
             }
         }
         return permissions;
