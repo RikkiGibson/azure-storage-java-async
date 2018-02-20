@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright Microsoft Corporation
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,8 +13,6 @@
  * limitations under the License.
  */
 package com.microsoft.azure.storage.blob;
-
-import java.util.EnumSet;
 
 /**
  * Specifies the set of possible permissions for a blob shared access policy.
@@ -45,44 +43,51 @@ public final class BlobSASPermission {
      */
     public boolean delete;
 
+    /**
+     * Initializes a {@code BlobSASPermission} object with all fields set to false.
+     */
     public BlobSASPermission() {}
 
     /**
-     * Converts the given permissions to a {@code String}.
+     * Converts the given permissions to a {@code String}. Using this method will guarantee the permissions are in an
+     * order accepted by the service.
      *
      * @return
      *      A {@code String} which represents the {@code BlobSASPermission}.
      */
     @Override
     public String toString() {
-        // The service supports a fixed order => racwd
+        // The order of the characters should be as specified here to ensure correctness:
+        // https://docs.microsoft.com/en-us/rest/api/storageservices/constructing-a-service-sas
+
         final StringBuilder builder = new StringBuilder();
 
         if (this.read) {
-            builder.append("r");
+            builder.append('r');
         }
 
         if (this.add) {
-            builder.append("a");
+            builder.append('a');
         }
 
         if (this.create) {
-            builder.append("c");
+            builder.append('c');
         }
 
         if (this.write) {
-            builder.append("w");
+            builder.append('w');
         }
 
         if (this.delete) {
-            builder.append("d");
+            builder.append('d');
         }
 
         return builder.toString();
     }
 
     /**
-     * Creates an {@code BlobSASPermission} from the specified permissions string.
+     * Creates a {@code BlobSASPermission} from the specified permissions string. This method will throw an
+     * {@code IllegalArgumentException} if it encounters a character that does not correspond to a valid permission.
      *
      * @param permString
      *      A {@code String} which represents the {@code BlobSASPermission}.

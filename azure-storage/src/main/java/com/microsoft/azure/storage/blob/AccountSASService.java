@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright Microsoft Corporation
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,10 +14,8 @@
  */
 package com.microsoft.azure.storage.blob;
 
-import java.util.EnumSet;
-
 /**
- * Represents possible services to be used for an Account SAS
+ * Represents possible services to be used for an Account SAS.
  */
 public final class AccountSASService {
     /**
@@ -40,23 +38,26 @@ public final class AccountSASService {
      */
     public boolean table;
 
+    /**
+     * Initializes an {@code AccountSASService} object with all fields set to false.
+     */
     public AccountSASService() {}
 
     /**
-     * Converts the given services to a {@code String}.
+     * Converts the given services to a {@code String}. Using this method will guarantee the services are in an order
+     * accepted by the service.
      *
      * @return
-     *      A {@code String} which represents the {@code SharedAccessAccountServices}.
+     *      A {@code String} which represents the {@code AccountSASServices}.
      */
     @Override
     public String toString() {
+        // The order of the characters should be as specified here to ensure correctness:
+        // https://docs.microsoft.com/en-us/rest/api/storageservices/constructing-an-account-sas
         StringBuilder value = new StringBuilder();
 
         if (this.blob) {
             value.append('b');
-        }
-        if (this.file) {
-            value.append('f');
         }
         if (this.queue) {
             value.append('q');
@@ -64,16 +65,21 @@ public final class AccountSASService {
         if (this.table) {
             value.append('t');
         }
+        if (this.file) {
+            value.append('f');
+        }
 
         return value.toString();
     }
 
     /**
-     * Creates an {@code AccountSASService} from the specified services string.
+     * Creates an {@code AccountSASService} from the specified services string. This method will throw an
+     * {@code IllegalArgumentException} if it encounters a character that does not correspond to a valid service.
      *
      * @param servicesString
-     *            A {@code String} which represents the {@code SharedAccessAccountServices}.
-     * @return A {@code AccountSASService} generated from the given {@code String}.
+     *      A {@code String} which represents the {@code SharedAccessAccountServices}.
+     * @return
+     *      A {@code AccountSASService} generated from the given {@code String}.
      */
     public static AccountSASService parse(String servicesString) {
         AccountSASService services = new AccountSASService();

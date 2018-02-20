@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright Microsoft Corporation
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,6 +16,9 @@ package com.microsoft.azure.storage.blob;
 
 public final class PageBlobAccessConditions {
 
+    /**
+     * An object representing no access conditions.
+     */
     public static final PageBlobAccessConditions NONE = new PageBlobAccessConditions(null,
             null, null);
 

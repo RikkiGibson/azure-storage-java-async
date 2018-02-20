@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright Microsoft Corporation
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,7 +15,7 @@
 package com.microsoft.azure.storage.blob;
 
 /**
- * Represents possible permissions to be used for an Account SAS
+ * Represents possible permissions to be used for an Account SAS.
  */
 public final class AccountSASPermission {
     /**
@@ -59,54 +59,61 @@ public final class AccountSASPermission {
     public boolean processMessages;
 
     /**
-     * Converts the given permissions to a {@code String}.
+     * Initializes an {@code AccountSASPermssion} object with all fields set to false.
+     */
+    public AccountSASPermission() {}
+
+    /**
+     * Converts the given permissions to a {@code String}. Using this method will guarantee the permissions are in an
+     * order accepted by the service.
      *
      * @return
      *      A {@code String} which represents the {@code AccountSASPermissions}.
      */
     @Override
     public String toString() {
+        // The order of the characters should be as specified here to ensure correctness:
+        // https://docs.microsoft.com/en-us/rest/api/storageservices/constructing-an-account-sas
         final StringBuilder builder = new StringBuilder();
 
         if (this.read) {
-            builder.append("r");
-        }
-
-        if (this.add) {
-            builder.append("a");
-        }
-
-        if (this.create) {
-            builder.append("c");
+            builder.append('r');
         }
 
         if (this.write) {
-            builder.append("w");
+            builder.append('w');
         }
 
         if (this.delete) {
-            builder.append("d");
+            builder.append('d');
         }
 
         if (this.list) {
-            builder.append("l");
+            builder.append('l');
+        }
+
+        if (this.add) {
+            builder.append('a');
+        }
+
+        if (this.create) {
+            builder.append('c');
         }
 
         if (this.update) {
-            builder.append("u");
+            builder.append('u');
         }
 
         if (this.processMessages) {
-            builder.append("p");
+            builder.append('p');
         }
 
         return builder.toString();
     }
 
-    public AccountSASPermission() {}
-
     /**
-     * Creates an {@code AccountSASPermission} from the specified permissions string.
+     * Creates an {@code AccountSASPermission} from the specified permissions string. This method will throw an
+     * {@code IllegalArgumentException} if it encounters a character that does not correspond to a valid permission.
      *
      * @param permString
      *      A {@code String} which represents the {@code SharedAccessAccountPermissions}.

@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright Microsoft Corporation
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -22,7 +22,7 @@ final class Constants {
     /**
      * Defines constants for use with HTTP headers.
      */
-    static class HeaderConstants {
+    static final class HeaderConstants {
         /**
          * The Authorization header.
          */
@@ -137,6 +137,21 @@ final class Constants {
      * Constant representing a megabyte (Non-SI version).
      */
     static final int MB = 1024 * KB;
+
+    /**
+     * Specifies the maximum number of bytes that can be sent in a call to PutBlock.
+     */
+    public static final int MAX_BLOCK_SIZE = 100 * MB;
+
+    /**
+     * Specifies the maximum number of blocks allowed in a block blob.
+     */
+    public static final int MAX_BLOCKS = 50000;
+
+    /**
+     * Specifies the maximum number of bytes that may be put in a single putBlob operation.
+     */
+    public static final int MAX_PUT_BLOB_BYTES = 256 * MB;
 
     /**
      * An empty {@code String} to use for comparison.

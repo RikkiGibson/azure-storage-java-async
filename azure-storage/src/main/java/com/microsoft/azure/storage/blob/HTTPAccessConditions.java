@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright Microsoft Corporation
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -19,11 +19,14 @@ import org.joda.time.DateTime;
 import java.util.Date;
 
 /**
- * HTTP Access Conditions
+ * HTTP Access Conditions.
  */
-public final class HttpAccessConditions {
+public final class HTTPAccessConditions {
 
-    public static final HttpAccessConditions NONE = new HttpAccessConditions(null, null,
+    /**
+     * An object representing no access conditions.
+     */
+    public static final HTTPAccessConditions NONE = new HTTPAccessConditions(null, null,
             null, null);
 
     private final Date ifModifiedSince;
@@ -35,7 +38,7 @@ public final class HttpAccessConditions {
     private final ETag ifNoneMatch;
 
     /**
-     * Creates a {@link HttpAccessConditions} object.
+     * Creates a {@link HTTPAccessConditions} object.
      *
      * @param ifModifiedSince
      *      A {@code java.util.Date} if modified since condition.
@@ -46,7 +49,7 @@ public final class HttpAccessConditions {
      * @param ifNoneMatch
      *      An {@link ETag} if none match condition.
      */
-    public HttpAccessConditions(Date ifModifiedSince, Date ifUnmodifiedSince, ETag ifMatch, ETag ifNoneMatch) {
+    public HTTPAccessConditions(Date ifModifiedSince, Date ifUnmodifiedSince, ETag ifMatch, ETag ifNoneMatch) {
         this.ifModifiedSince = ifModifiedSince == null ? null : new Date(ifModifiedSince.getTime());
         this.ifUnmodifiedSince = ifUnmodifiedSince == null ? null : new Date(ifUnmodifiedSince.getTime());
 
@@ -54,19 +57,36 @@ public final class HttpAccessConditions {
         this.ifNoneMatch = ifNoneMatch == null ? ETag.NONE : ifNoneMatch;
     }
 
-    // TODO: Change to java.util.Date
+    // TODO: Change to java.util.Date and remove null check
+
+    /**
+     * @return
+     *      If not null, operations will only succeed if the object has been modified since this time.
+     */
     public DateTime getIfModifiedSince() {
         return ifModifiedSince == null ? null : new DateTime(ifModifiedSince);
     }
 
+    /**
+     * @return
+     *      If not null, operations will only succeed if the object has been unmodified since this time.
+     */
     public DateTime getIfUnmodifiedSince() {
         return ifUnmodifiedSince == null ? null : new DateTime(ifUnmodifiedSince);
     }
 
+    /**
+     * @return
+     *      If not null, operations will only succeed if the object's etag matches this value.
+     */
     public ETag getIfMatch() {
         return ifMatch;
     }
 
+    /**
+     * @return
+     *      If not null, operations will only succeed if the object's etag does not match this value.
+     */
     public ETag getIfNoneMatch() {
         return ifNoneMatch;
     }

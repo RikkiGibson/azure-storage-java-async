@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright Microsoft Corporation
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -19,6 +19,10 @@ package com.microsoft.azure.storage.blob;
  */
 public final class ListBlobsOptions {
 
+    /**
+     * An object representing the default options: no details, prefix, or delimiter. Uses the server default for
+     * maxResult.
+     */
     public static final ListBlobsOptions DEFAULT = new ListBlobsOptions(
             new BlobListingDetails(false, false, false, false),
             null, null, null);
@@ -51,43 +55,47 @@ public final class ListBlobsOptions {
         if (maxResults != null && maxResults <= 0) {
             throw new IllegalArgumentException("MaxResults must be greater than 0.");
         }
-        this.details = details;
+        this.details = details == null ? BlobListingDetails.NONE : details;
         this.prefix = prefix;
         this.delimiter = delimiter;
         this.maxResults = maxResults;
     }
 
     /**
-     * @return A {@link BlobListingDetails} object indicating what additional information the service should return
-     *           with each blob.
+     * @return
+     *      A {@link BlobListingDetails} object indicating what additional information the service should return
+     *      with each blob.
      */
     public BlobListingDetails getDetails() {
-        return details;
+        return this.details;
     }
 
     /**
-     * @return A {@code String} that filters the results to return only blobs whose names begin with the specified
-     *           prefix.
+     * @return
+     *      A {@code String} that filters the results to return only blobs whose names begin with the specified
+     *      prefix.
      */
     public String getPrefix() {
-        return prefix;
+        return this.prefix;
     }
 
     /**
-     * @return A {@code String}. When the request includes this parameter, the operation returns a BlobPrefix element
-     *           in the response body that acts as a placeholder for all blobs whose names begin with the same substring
-     *           up to the appearance of the delimiter character. The delimiter may be a single character or a string.
+     * @return
+     *      A {@code String}. When the request includes this parameter, the operation returns a BlobPrefix element
+     *      in the response body that acts as a placeholder for all blobs whose names begin with the same substring
+     *      up to the appearance of the delimiter character. The delimiter may be a single character or a string.
      */
     public String getDelimiter() {
-        return delimiter;
+        return this.delimiter;
     }
 
     /**
-     * @return Specifies the maximum number of blobs to return, including all BlobPrefix elements. If the request does
-     *           not specify maxresults or specifies a value greater than 5,000, the server will return up to 5,000
-     *           items.
+     * @return
+     *      Specifies the maximum number of blobs to return, including all BlobPrefix elements. If the request does
+     *      not specify maxresults or specifies a value greater than 5,000, the server will return up to 5,000
+     *      items.
      */
     public Integer getMaxResults() {
-        return maxResults;
+        return this.maxResults;
     }
 }
